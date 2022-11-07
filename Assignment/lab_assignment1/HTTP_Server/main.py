@@ -7,6 +7,7 @@ import config
 import mimetypes
 import os
 from framework import HTTPServer, HTTPRequest, HTTPResponse
+
 HTTPHeader = namedtuple('HTTPHeader', ['name', 'value'])
 
 
@@ -46,6 +47,7 @@ def task3_json_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
     response.status_code, response.reason = 200, 'OK'
     if request.method == 'POST':
         binary_data = request.read_message_body()
+        # print(binary_data)
         obj = json.loads(binary_data)
         # TODO: Task 3: Store data when POST
         data = obj['data']
@@ -53,12 +55,21 @@ def task3_json_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
     else:
         obj = {'data': server.task3_data}
         return_binary = json.dumps(obj).encode()
+        message_size = len(return_binary)
+        message_type = 'application/x-www-form-urlencoded'
+        response.headers.append(HTTPHeader("Content-Type", message_type))
+        response.headers.append(HTTPHeader("Content-Length", str(message_size)))
+        response.body = return_binary
         pass
 
 
 def task4_url_redirection(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
     # TODO: Task 4: HTTP 301 & 302: URL Redirection (10%)
-    pass
+    if request.request_target == "/redirect":
+        response.status_code, response.reason = 302, 'Found'
+        response.headers.append(HTTPHeader("Location", "http://127.0.0.1:8080/data/index.html"))
+    else:
+        response.status_code, response.reason = 404, 'Not Found'
 
 
 def task5_test_html(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):

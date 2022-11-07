@@ -44,25 +44,28 @@ class HTTPRequest:
         :return:
         """
         # TODO: Task1, read from socket and fill HTTPRequest object fields
-        # data = socket.recv(1024)
+        # data = self.socket.recv(1024)
         # print(data)
+
         total_data = bytes()
         while True:
             data = self.socket.recv(1024)
             total_data += data
             if len(data) < 1024:
-                data = self.socket.recv(1024)
-                total_data += data
                 break
+        # print(total_data)
         data = total_data.decode().split("\r\n")
-        print(data)
+        self.buffer = data[-1].encode()
         [self.method, self.request_target, self.http_version] = data[0].split(" ")
         for header_idx in range(1, len(data)):
             # if data[i] is null then skip
             try:
                 self.headers.append(HTTPHeader(name=data[header_idx].split(": ")[0], value=data[header_idx].split(": ")[1]))
+                if data[header_idx].split(": ")[0] == "Content-Length":
+                    self.body_length = data[header_idx].split(": ")[1]
             except IndexError:
                 pass
+
         # Debug: print http request
         print(f"{self.method} {self.request_target} {self.http_version}")
         for h in self.headers:
@@ -71,8 +74,7 @@ class HTTPRequest:
 
     def read_message_body(self) -> bytes:
         # TODO: Task 3: complete read_message_body here
-
-        pass
+        return self.buffer
 
 
     def get_header(self, key: str) -> Union[str, None]:
