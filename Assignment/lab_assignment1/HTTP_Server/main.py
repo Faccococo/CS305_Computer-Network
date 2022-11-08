@@ -110,7 +110,6 @@ def task5_cookie_getimage(server: HTTPServer, request: HTTPRequest, response: HT
                     response.body = f.read()
     else:
         response.status_code, response.reason = 403, 'Forbidden'
-        pass
 
 
 def task5_session_login(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
@@ -120,13 +119,37 @@ def task5_session_login(server: HTTPServer, request: HTTPRequest, response: HTTP
         session_key = random_string()
         while session_key in server.session:
             session_key = random_string()
-        pass
+        server.session['admin'] = session_key
+        response.add_header("Set-Cookie", "SESSION_KEY="+session_key)
+        server.session[session_key] = True
+        response.status_code, response.reason = 200, 'OK'
     else:
         response.status_code, response.reason = 403, 'Forbidden'
 
 
 def task5_session_getimage(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
     # TODO: Task 5: Cookie, Step 2 Access Protected Resources
+    header_dict = {}
+    headers = request.headers
+    for header in headers:
+        header_dict[header.name] = header.value
+    try:
+        verify = True if header_dict["Cookie"][12:] in server.session else False
+    except KeyError:
+        verify = False
+    if verify:
+        filename = "data/test.jpg"
+        if os.path.isfile(filename):
+            response.status_code, response.reason = 200, 'OK'
+            file_size = os.stat(filename).st_size
+            file_type = mimetypes.guess_type(filename)[0]
+            response.headers.append(HTTPHeader("Content-Type", file_type))
+            response.headers.append(HTTPHeader("Content-Length", str(file_size)))
+            if request.method == "GET":
+                with open(filename, 'rb') as f:
+                    response.body = f.read()
+    else:
+        response.status_code, response.reason = 403, 'Forbidden'
     pass
 
 

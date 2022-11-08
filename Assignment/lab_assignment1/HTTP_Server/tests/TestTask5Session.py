@@ -23,5 +23,6 @@ class TestTask5Session(tests.BasicTest.BasicTest):
         self.assertEqual(int(resp.headers['Content-Length']), flen)
         self.assertIn(resp.headers['Content-Type'], ['image/jpeg', 'image/jpg'])
 
+
 if __name__ == '__main__':
     unittest.main()
