@@ -45,7 +45,6 @@ class HTTPRequest:
         """
         # TODO: Task1, read from socket and fill HTTPRequest object fields
         # data = self.socket.recv(1024)
-        # print(data)
 
         total_data = bytes()
         while True:
