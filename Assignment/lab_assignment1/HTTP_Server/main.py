@@ -28,8 +28,7 @@ def task2_data_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
     if request.method == "HEAD" or request.method == "GET":
         filename = request.request_target[1:]
         if os.path.isfile(filename):
-            response.status_code = 200
-            response.reason = 'OK'
+            response.status_code, response.reason = 200, 'OK'
             file_size = os.stat(filename).st_size
             file_type = mimetypes.guess_type(filename)[0]
             response.headers.append(HTTPHeader("Content-Type", file_type))
@@ -38,8 +37,7 @@ def task2_data_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
                 with open(filename, 'rb') as f:
                     response.body = f.read()
         else:
-            response.status_code = 404
-            response.reason = 'Not Found'
+            response.status_code, response.reason = 404, 'Not Found'
 
 
 def task3_json_handler(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
@@ -83,14 +81,35 @@ def task5_cookie_login(server: HTTPServer, request: HTTPRequest, response: HTTPR
     # TODO: Task 5: Cookie, Step 1 Login Authorization
     obj = json.loads(request.read_message_body())
     if obj["username"] == 'admin' and obj['password'] == 'admin':
-        pass
+        response.status_code, response.reason = 200, 'OK'
+        response.add_header("Set-Cookie", "Authenticated=yes")
     else:
-        pass
+        response.status_code, response.reason = 403, 'Forbidden'
 
 
 def task5_cookie_getimage(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
     # TODO: Task 5: Cookie, Step 2 Access Protected Resources
-    pass
+    header_dict = {}
+    headers = request.headers
+    for header in headers:
+        header_dict[header.name] = header.value
+    try:
+        verify = True if header_dict["Cookie"] == "Authenticated=yes" else False
+    except KeyError:
+        verify = False
+    if verify:
+        filename = "data/test.jpg"
+        if os.path.isfile(filename):
+            response.status_code, response.reason = 200, 'OK'
+            file_size = os.stat(filename).st_size
+            file_type = mimetypes.guess_type(filename)[0]
+            response.headers.append(HTTPHeader("Content-Type", file_type))
+            response.headers.append(HTTPHeader("Content-Length", str(file_size)))
+            if request.method == "GET":
+                with open(filename, 'rb') as f:
+                    response.body = f.read()
+    else:
+        response.status_code, response.reason = 403, 'Forbidden'
 
 
 def task5_session_login(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):

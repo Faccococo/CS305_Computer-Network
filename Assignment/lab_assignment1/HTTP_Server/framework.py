@@ -76,7 +76,6 @@ class HTTPRequest:
         # TODO: Task 3: complete read_message_body here
         return self.buffer
 
-
     def get_header(self, key: str) -> Union[str, None]:
         for h in self.headers:
             if h.name == key:
