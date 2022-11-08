@@ -110,6 +110,7 @@ def task5_cookie_getimage(server: HTTPServer, request: HTTPRequest, response: HT
                     response.body = f.read()
     else:
         response.status_code, response.reason = 403, 'Forbidden'
+        pass
 
 
 def task5_session_login(server: HTTPServer, request: HTTPRequest, response: HTTPResponse):
