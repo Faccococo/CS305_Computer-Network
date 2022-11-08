@@ -52,14 +52,15 @@ def task3_json_handler(server: HTTPServer, request: HTTPRequest, response: HTTPR
         # TODO: Task 3: Store data when POST
         data = obj['data']
         server.task3_data = data
-    else:
+    elif request.method == 'HEAD' or request.method == 'GET':
         obj = {'data': server.task3_data}
         return_binary = json.dumps(obj).encode()
         message_size = len(return_binary)
         message_type = 'application/x-www-form-urlencoded'
         response.headers.append(HTTPHeader("Content-Type", message_type))
         response.headers.append(HTTPHeader("Content-Length", str(message_size)))
-        response.body = return_binary
+        if request.method == 'GET':
+            response.body = return_binary
         pass
 
 
